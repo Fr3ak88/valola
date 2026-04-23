@@ -2,7 +2,7 @@
   "name": "VaLoLa",
   "version": "1.0.0",
   "description": "Landing Page für Valola",
-  "main": "dist/script.js",
+  "main": "dist/app.js",
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",

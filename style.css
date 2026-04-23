@@ -51,7 +51,8 @@ nav ul li a {
     transition: color 0.3s;
 }
 
-nav ul li a:hover {
+nav ul li a:hover,
+nav ul li a.active {
     color: #3498db;
 }
 
@@ -85,6 +86,94 @@ nav ul li a:hover {
 
 .btn:hover {
     background-color: #c0392b;
+}
+
+.btn-secondary {
+    background-color: #fff;
+    color: #2c3e50;
+    margin-left: 1rem;
+}
+
+.btn-secondary:hover {
+    background-color: #ecf0f1;
+}
+
+.hero-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* Login Seite */
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 120px 1.5rem 60px;
+    background: linear-gradient(180deg, #f4f4f4 0%, #e8eff5 100%);
+}
+
+.login-container {
+    width: min(480px, 100%);
+    background-color: #ffffff;
+    padding: 3rem;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(44, 62, 80, 0.12);
+    text-align: center;
+}
+
+.login-container h1 {
+    margin-bottom: 0.5rem;
+    font-size: 2rem;
+    color: #2c3e50;
+}
+
+.login-container p {
+    margin-bottom: 2rem;
+    color: #555;
+}
+
+.login-container form {
+    display: grid;
+    gap: 1rem;
+    text-align: left;
+}
+
+.login-container label {
+    font-weight: 600;
+    color: #333;
+}
+
+.login-container input {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border: 1px solid #d1d7dd;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.login-container input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.12);
+}
+
+.login-container .helper-text {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: #555;
+}
+
+.login-container .helper-text a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+.login-container .helper-text a:hover {
+    text-decoration: underline;
 }
 
 /* Features Section */
