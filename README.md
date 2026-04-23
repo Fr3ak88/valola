@@ -1,1 +1,4 @@
 # valola
+
+
+All rights reserved
