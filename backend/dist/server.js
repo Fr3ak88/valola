@@ -13,19 +13,7 @@ const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3001;
 // Middleware
 app.use((0, cors_1.default)({
-    origin: function (origin, callback) {
-        // Erlaube requests ohne Origin (z.B. mobile Apps, curl requests)
-        if (!origin)
-            return callback(null, true);
-        // Erlaube localhost für Entwicklung
-        if (origin.includes('localhost'))
-            return callback(null, true);
-        // Erlaube die konfigurierte Frontend-URL
-        const frontendUrl = process.env.FRONTEND_URL;
-        if (frontendUrl && origin === frontendUrl)
-            return callback(null, true);
-        return callback(new Error('Not allowed by CORS'));
-    },
+    origin: true, // Erlaube alle Origins für Entwicklung
     credentials: true
 }));
 app.use(express_1.default.json());
