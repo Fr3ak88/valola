@@ -6,6 +6,76 @@ type ElementOptions = {
     attrs?: Record<string, string>;
 };
 
+// API Service für Backend-Kommunikation
+class ApiService {
+    private static baseUrl = 'http://localhost:3001/api';
+    private static token: string | null = null;
+
+    static setToken(token: string) {
+        this.token = token;
+        localStorage.setItem('authToken', token);
+    }
+
+    static getToken(): string | null {
+        return this.token || localStorage.getItem('authToken');
+    }
+
+    static clearToken() {
+        this.token = null;
+        localStorage.removeItem('authToken');
+    }
+
+    static async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+        const url = `${this.baseUrl}${endpoint}`;
+        const headers: Record<string, string> = {
+            'Content-Type': 'application/json',
+            ...(options.headers as Record<string, string> || {})
+        };
+
+        if (this.getToken()) {
+            headers.Authorization = `Bearer ${this.getToken()}`;
+        }
+
+        const response = await fetch(url, {
+            ...options,
+            headers
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ error: 'Netzwerkfehler' }));
+            throw new Error(error.error || `HTTP ${response.status}`);
+        }
+
+        return response.json();
+    }
+
+    static async login(email: string, password: string) {
+        const response = await this.request<{ user: any; token: string }>('/users/login', {
+            method: 'POST',
+            body: JSON.stringify({ email, password })
+        });
+
+        this.setToken(response.token);
+        return response;
+    }
+
+    static async register(userData: { email: string; password: string; first_name?: string; last_name?: string }) {
+        return this.request('/users/register', {
+            method: 'POST',
+            body: JSON.stringify(userData)
+        });
+    }
+
+    static async getCurrentUser() {
+        return this.request<{ user: any }>('/users/me');
+    }
+
+    static logout() {
+        this.clearToken();
+        window.location.reload();
+    }
+}
+
 function createElement<K extends keyof HTMLElementTagNameMap>(tag: K, options?: ElementOptions): HTMLElementTagNameMap[K] {
     const element = document.createElement(tag);
 
@@ -135,11 +205,15 @@ function renderLoginPage(): HTMLElement {
     container.appendChild(createElement('p', { text: 'Bitte melden Sie sich an, um auf Ihr Valola-Konto zuzugreifen.' }));
 
     const form = createElement('form');
+    const emailInput = createElement('input', { attrs: { type: 'email', id: 'email', name: 'email', placeholder: 'name@beispiel.de', required: 'true' } });
+    const passwordInput = createElement('input', { attrs: { type: 'password', id: 'password', name: 'password', placeholder: 'Passwort', required: 'true' } });
+    const submitButton = createElement('button', { text: 'Einloggen', classes: ['btn'], attrs: { type: 'submit' } });
+
     form.appendChild(createElement('label', { text: 'E-Mail', attrs: { for: 'email' } }));
-    form.appendChild(createElement('input', { attrs: { type: 'email', id: 'email', name: 'email', placeholder: 'name@beispiel.de', required: 'true' } }));
+    form.appendChild(emailInput);
     form.appendChild(createElement('label', { text: 'Passwort', attrs: { for: 'password' } }));
-    form.appendChild(createElement('input', { attrs: { type: 'password', id: 'password', name: 'password', placeholder: 'Passwort', required: 'true' } }));
-    form.appendChild(createElement('button', { text: 'Einloggen', classes: ['btn'], attrs: { type: 'submit' } }));
+    form.appendChild(passwordInput);
+    form.appendChild(submitButton);
 
     container.appendChild(form);
     const helperText = createElement('p', { classes: ['helper-text'] });
@@ -147,9 +221,27 @@ function renderLoginPage(): HTMLElement {
     container.appendChild(helperText);
     main.appendChild(container);
 
-    form.addEventListener('submit', event => {
+    // Login-Handler
+    form.addEventListener('submit', async (event) => {
         event.preventDefault();
-        window.alert('Login-Aktion wurde erkannt. In einer echten Anwendung würde hier die Anmeldung verarbeitet.');
+
+        const email = (emailInput as HTMLInputElement).value;
+        const password = (passwordInput as HTMLInputElement).value;
+
+        submitButton.textContent = 'Lädt...';
+        submitButton.disabled = true;
+
+        try {
+            const response = await ApiService.login(email, password);
+            alert(`Willkommen, ${response.user.first_name || response.user.email}!`);
+            // Nach erfolgreichem Login zur Hauptseite weiterleiten
+            window.location.href = 'index.html';
+        } catch (error) {
+            alert(`Login fehlgeschlagen: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`);
+        } finally {
+            submitButton.textContent = 'Einloggen';
+            submitButton.disabled = false;
+        }
     });
 
     return main;

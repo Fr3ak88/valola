@@ -6,7 +6,16 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
-    "serve": "http-server . -p 8000"
+    "serve": "http-server . -p 8000",
+    "backend:install": "cd backend && npm install",
+    "backend:build": "cd backend && npm run build",
+    "backend:dev": "cd backend && npm run dev",
+    "backend:start": "cd backend && npm start",
+    "db:up": "docker-compose up -d",
+    "db:down": "docker-compose down",
+    "db:migrate": "cd backend && npm run db:migrate",
+    "db:seed": "cd backend && npm run db:seed",
+    "setup": "npm run backend:install && npm run db:up && sleep 5 && npm run db:migrate && npm run db:seed"
   },
   "devDependencies": {
     "typescript": "^5.0.0",

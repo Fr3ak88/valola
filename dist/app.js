@@ -1,4 +1,60 @@
 "use strict";
+// API Service für Backend-Kommunikation
+class ApiService {
+    static setToken(token) {
+        this.token = token;
+        localStorage.setItem('authToken', token);
+    }
+    static getToken() {
+        return this.token || localStorage.getItem('authToken');
+    }
+    static clearToken() {
+        this.token = null;
+        localStorage.removeItem('authToken');
+    }
+    static async request(endpoint, options = {}) {
+        const url = `${this.baseUrl}${endpoint}`;
+        const headers = {
+            'Content-Type': 'application/json',
+            ...(options.headers || {})
+        };
+        if (this.getToken()) {
+            headers.Authorization = `Bearer ${this.getToken()}`;
+        }
+        const response = await fetch(url, {
+            ...options,
+            headers
+        });
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ error: 'Netzwerkfehler' }));
+            throw new Error(error.error || `HTTP ${response.status}`);
+        }
+        return response.json();
+    }
+    static async login(email, password) {
+        const response = await this.request('/users/login', {
+            method: 'POST',
+            body: JSON.stringify({ email, password })
+        });
+        this.setToken(response.token);
+        return response;
+    }
+    static async register(userData) {
+        return this.request('/users/register', {
+            method: 'POST',
+            body: JSON.stringify(userData)
+        });
+    }
+    static async getCurrentUser() {
+        return this.request('/users/me');
+    }
+    static logout() {
+        this.clearToken();
+        window.location.reload();
+    }
+}
+ApiService.baseUrl = 'http://localhost:3001/api';
+ApiService.token = null;
 function createElement(tag, options) {
     const element = document.createElement(tag);
     if (options === null || options === void 0 ? void 0 : options.classes) {
@@ -103,19 +159,39 @@ function renderLoginPage() {
     container.appendChild(createElement('h1', { text: 'Anmeldung' }));
     container.appendChild(createElement('p', { text: 'Bitte melden Sie sich an, um auf Ihr Valola-Konto zuzugreifen.' }));
     const form = createElement('form');
+    const emailInput = createElement('input', { attrs: { type: 'email', id: 'email', name: 'email', placeholder: 'name@beispiel.de', required: 'true' } });
+    const passwordInput = createElement('input', { attrs: { type: 'password', id: 'password', name: 'password', placeholder: 'Passwort', required: 'true' } });
+    const submitButton = createElement('button', { text: 'Einloggen', classes: ['btn'], attrs: { type: 'submit' } });
     form.appendChild(createElement('label', { text: 'E-Mail', attrs: { for: 'email' } }));
-    form.appendChild(createElement('input', { attrs: { type: 'email', id: 'email', name: 'email', placeholder: 'name@beispiel.de', required: 'true' } }));
+    form.appendChild(emailInput);
     form.appendChild(createElement('label', { text: 'Passwort', attrs: { for: 'password' } }));
-    form.appendChild(createElement('input', { attrs: { type: 'password', id: 'password', name: 'password', placeholder: 'Passwort', required: 'true' } }));
-    form.appendChild(createElement('button', { text: 'Einloggen', classes: ['btn'], attrs: { type: 'submit' } }));
+    form.appendChild(passwordInput);
+    form.appendChild(submitButton);
     container.appendChild(form);
     const helperText = createElement('p', { classes: ['helper-text'] });
     helperText.innerHTML = 'Noch keinen Zugang? <a href="index.html#contact">Kontaktieren Sie uns</a>.';
     container.appendChild(helperText);
     main.appendChild(container);
-    form.addEventListener('submit', event => {
+    // Login-Handler
+    form.addEventListener('submit', async (event) => {
         event.preventDefault();
-        window.alert('Login-Aktion wurde erkannt. In einer echten Anwendung würde hier die Anmeldung verarbeitet.');
+        const email = emailInput.value;
+        const password = passwordInput.value;
+        submitButton.textContent = 'Lädt...';
+        submitButton.disabled = true;
+        try {
+            const response = await ApiService.login(email, password);
+            alert(`Willkommen, ${response.user.first_name || response.user.email}!`);
+            // Nach erfolgreichem Login zur Hauptseite weiterleiten
+            window.location.href = 'index.html';
+        }
+        catch (error) {
+            alert(`Login fehlgeschlagen: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`);
+        }
+        finally {
+            submitButton.textContent = 'Einloggen';
+            submitButton.disabled = false;
+        }
     });
     return main;
 }

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>API Test</h1>
+    <button onclick="testHealth()">Test Health API</button>
+    <button onclick="testLogin()">Test Login API</button>
+    <div id="result"></div>
+
+    <script>
+        async function testHealth() {
+            const result = document.getElementById('result');
+            result.textContent = 'Teste Health API...';
+
+            try {
+                const response = await fetch('http://localhost:3001/api/health');
+                const data = await response.json();
+                result.textContent = 'Health API Erfolg: ' + JSON.stringify(data);
+                console.log('Health API Response:', data);
+            } catch (error) {
+                result.textContent = 'Health API Fehler: ' + error.message;
+                console.error('Health API Error:', error);
+            }
+        }
+
+        async function testLogin() {
+            const result = document.getElementById('result');
+            result.textContent = 'Teste Login API...';
+
+            try {
+                const response = await fetch('http://localhost:3001/api/users/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@valola.com',
+                        password: 'admin123'
+                    })
+                });
+                const data = await response.json();
+                result.textContent = 'Login API Erfolg: ' + data.message;
+                console.log('Login API Response:', data);
+            } catch (error) {
+                result.textContent = 'Login API Fehler: ' + error.message;
+                console.error('Login API Error:', error);
+            }
+        }
+    </script>
+</body>
+</html>
