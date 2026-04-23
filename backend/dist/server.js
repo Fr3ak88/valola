@@ -10,7 +10,8 @@ const users_1 = __importDefault(require("./routes/users"));
 const database_1 = __importDefault(require("./database"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
-const PORT = process.env.PORT || 3001;
+const PORT = parseInt(process.env.PORT || '3001', 10);
+const HOST = process.env.HOST || '0.0.0.0'; // Erlaube externe Verbindungen
 // Middleware
 app.use((0, cors_1.default)({
     origin: true, // Erlaube alle Origins für Entwicklung
@@ -34,9 +35,10 @@ app.use('*', (req, res) => {
     res.status(404).json({ error: 'Route nicht gefunden' });
 });
 // Server starten
-const server = app.listen(PORT, () => {
-    console.log(`🚀 Valola Backend Server läuft auf Port ${PORT}`);
+const server = app.listen(PORT, HOST, () => {
+    console.log(`🚀 Valola Backend Server läuft auf ${HOST}:${PORT}`);
     console.log(`📊 Health Check: http://localhost:${PORT}/api/health`);
+    console.log(`🌐 Extern erreichbar auf: http://${HOST}:${PORT}`);
 });
 // Graceful Shutdown
 process.on('SIGTERM', () => {

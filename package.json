@@ -7,6 +7,7 @@
     "build": "tsc",
     "watch": "tsc --watch",
     "serve": "http-server . -p 8000",
+    "serve:proxy": "node proxy-server.js",
     "backend:install": "cd backend && npm install",
     "backend:build": "cd backend && npm run build",
     "backend:dev": "cd backend && npm run dev",
@@ -18,9 +19,13 @@
     "setup": "npm run backend:install && npm run db:up && sleep 5 && npm run db:migrate && npm run db:seed"
   },
   "devDependencies": {
-    "typescript": "^5.0.0",
-    "http-server": "^14.1.1"
+    "http-proxy-middleware": "^3.0.5",
+    "http-server": "^14.1.1",
+    "typescript": "^5.0.0"
   },
   "author": "",
-  "license": "Alle Rechte vorbehalten"
+  "license": "Alle Rechte vorbehalten",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
 }

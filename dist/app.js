@@ -53,7 +53,7 @@ class ApiService {
         window.location.reload();
     }
 }
-ApiService.baseUrl = 'http://localhost:3001/api';
+ApiService.baseUrl = 'https://probable-system-grx44xqg9rfw-3001.app.github.dev/';
 ApiService.token = null;
 function createElement(tag, options) {
     const element = document.createElement(tag);
