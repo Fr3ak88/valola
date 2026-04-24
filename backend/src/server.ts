@@ -8,7 +8,7 @@ dotenv.config();
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '3001', 10);
-const HOST = process.env.HOST || '0.0.0.0'; // Erlaube externe Verbindungen
+const HOST = process.env.HOST || 'localhost';
 
 // Middleware
 app.use(cors({
@@ -41,8 +41,7 @@ app.use('*', (req, res) => {
 // Server starten
 const server = app.listen(PORT, HOST, () => {
   console.log(`🚀 Valola Backend Server läuft auf ${HOST}:${PORT}`);
-  console.log(`📊 Health Check: http://localhost:${PORT}/api/health`);
-  console.log(`🌐 Extern erreichbar auf: http://${HOST}:${PORT}`);
+  console.log(`📊 Health Check: http://${HOST}:${PORT}/api/health`);
 });
 
 // Graceful Shutdown

@@ -20,7 +20,7 @@ app.get(['/', '/index.html', '/login.html', '/login-test.html'], (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, 'localhost', () => {
   console.log(`🚀 Valola Frontend + API Proxy Server läuft auf Port ${PORT}`);
   console.log(`📱 Frontend: http://localhost:${PORT}`);
   console.log(`🔗 API Proxy: http://localhost:${PORT}/api -> http://localhost:3001/api`);

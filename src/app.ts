@@ -8,7 +8,7 @@ type ElementOptions = {
 
 // API Service für Backend-Kommunikation
 class ApiService {
-    private static baseUrl = 'https://probable-system-grx44xqg9rfw-3001.app.github.dev/';
+    private static baseUrl = 'http://localhost:3001/api';
     private static token: string | null = null;
 
     static setToken(token: string) {

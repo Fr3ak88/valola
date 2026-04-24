@@ -48,23 +48,21 @@
             const password = document.getElementById('password').value;
             const submitBtn = document.getElementById('submitBtn');
             const result = document.getElementById('result');
+            const API_BASE = 'http://localhost:3001/api';
 
             result.textContent = 'Lädt...';
             result.style.backgroundColor = '#fff3cd';
             submitBtn.disabled = true;
             submitBtn.textContent = 'Lädt...';
 
-            console.log('Starte Login-Test mit:', email);
-
             try {
-                    const API_BASE = 'https://probable-system-grx44xqg9rfw-3001.app.github.dev';
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({ email, password })
-});
-
-                console.log('Response status:', response.status);
+                const response = await fetch(`${API_BASE}/users/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
 
                 if (!response.ok) {
                     const errorText = await response.text();
@@ -72,20 +70,15 @@
                 }
 
                 const data = await response.json();
-                console.log('Erfolgreiche Antwort:', data);
-
                 result.textContent = `✅ Login erfolgreich! Willkommen, ${data.user.first_name || data.user.email}!`;
                 result.style.backgroundColor = '#d4edda';
                 result.style.color = '#155724';
 
-                // Token speichern
                 localStorage.setItem('authToken', data.token);
 
-                // Nach erfolgreichem Login weiterleiten
                 setTimeout(() => {
                     window.location.href = 'index.html';
                 }, 2000);
-
             } catch (error) {
                 console.error('Login-Fehler:', error);
                 result.textContent = `❌ Login fehlgeschlagen: ${error.message}`;
@@ -97,7 +90,6 @@
             }
         }
 
-        // Event-Listener für das Formular
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('loginForm');
             if (form) {
@@ -110,38 +102,3 @@
     </script>
 </body>
 </html>
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ email, password })
-                });
-
-                console.log('Response status:', response.status);
-                console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-
-                const data = await response.json();
-                console.log('Erfolgreiche Antwort:', data);
-                alert('Login erfolgreich! ' + data.message);
-
-            } catch (error) {
-                console.error('Login-Fehler:', error);
-                alert('Login fehlgeschlagen: ' + error.message);
-            }
-        }
-
-        // Event-Listener für das Formular
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.querySelector('form');
-            if (form) {
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    testLogin();
-                });
-            }
-        });
-    </script>
