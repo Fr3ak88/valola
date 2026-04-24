@@ -32,6 +32,7 @@ nav {
 }
 
 .logo {
+    position: left;
     font-size: 1.5rem;
     font-weight: bold;
 }
@@ -258,7 +259,7 @@ footer {
 }
 
 .sidebar {
-    width: 250px;
+    width: 300px;
     background-color: #2c3e50;
     color: #fff;
     padding: 20px 0;
@@ -299,6 +300,9 @@ footer {
     font-weight: 500;
     width: 100%;
     box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .sidebar-nav li a:hover {
@@ -320,19 +324,20 @@ footer {
 }
 
 .submenu {
-    display: none !important;
-    visibility: hidden !important;
-    margin-left: 0;
-    padding-left: 0;
+    display: none;
+    list-style: none;
+    padding: 0;
+    margin: 0;
     height: 0;
     overflow: hidden;
+    transition: all 0.3s ease;
 }
 
 .submenu.open {
-    display: block !important;
-    visibility: visible !important;
+    display: block; 
     height: auto;
     overflow: visible;
+    visibility: visible;
 }
 
 .submenu li {

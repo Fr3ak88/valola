@@ -28,3 +28,9 @@ CREATE TABLE IF NOT EXISTS user_sessions (
 -- Index für Token-Hash
 CREATE INDEX IF NOT EXISTS idx_user_sessions_token_hash ON user_sessions(token_hash);
 CREATE INDEX IF NOT EXISTS idx_user_sessions_expires_at ON user_sessions(expires_at);
+
+
+ALTER TABLE users 
+ALTER TABLE users ADD COLUMN IF NOT EXISTS address VARCHAR(255);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(50);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS mobile VARCHAR(50);

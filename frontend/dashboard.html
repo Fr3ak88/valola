@@ -11,8 +11,7 @@
         <nav>
             <div class="logo">Valola</div>
             <ul>
-                <li><a href="index.html">Start</a></li>
-                <li><a href="dashboard.html" class="active">Dashboard</a></li>
+                <li><a href="profile.html" id="userProfileLink" class="active">Profil laden...</a></li>
                 <li><a href="login.html" id="logoutLink">Logout</a></li>
             </ul>
         </nav>
@@ -30,6 +29,8 @@
                         <ul class="submenu">
                             <li><a href="#angebote">📄 Angebote</a></li>
                             <li><a href="#auftraege">📋 Aufträge</a></li>
+                            <li><a href="#abonnements">📋 Abonnements</a></li>
+                            <li><a href="#vermietung">📋 Vermietung</a></li>
                         </ul>
                     </li>
                     <li class="has-submenu">
@@ -46,7 +47,9 @@
                             <li><a href="#bewegungen">🔄 Bewegungen</a></li>
                         </ul>
                     </li>
-                    <li><a href="#dms">📁 DMS</a></li>
+                    <li><a href="#dms">📁 Dokumente</a></li>
+                    <li><a href="#zeiterfassung">⏱️ Zeiterfassung</a></li>
+                    <li><a href="#kundendienst">📧 Kundendienst</a></li>
                     <li class="has-submenu">
                         <a href="#einstellungen">⚙️ Einstellungen</a>
                         <ul class="submenu">
@@ -85,60 +88,80 @@
     <footer>
         <p>&copy; 2026 Valola. Alle Rechte vorbehalten.</p>
     </footer>
-
     <script>
-        function redirectToLogin() {
-            localStorage.removeItem('authToken');
+    function redirectToLogin() {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userEmail');
+        window.location.href = 'login.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const token = localStorage.getItem('authToken');
+        const userEmailDisplay = document.getElementById('userEmail');
+        const logoutLink = document.getElementById('logoutLink');
+        const userProfileLink = document.getElementById('userProfileLink'); // Der Link im Header
+
+        // 1. Authentifizierungs-Check
+        if (!token) {
             window.location.href = 'login.html';
+            return;
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const token = localStorage.getItem('authToken');
-            const userEmail = document.getElementById('userEmail');
-            const logoutBtn = document.getElementById('logoutBtn');
-            const logoutLink = document.getElementById('logoutLink');
+        // 2. Benutzer-Daten verarbeiten
+        const storedEmail = localStorage.getItem('userEmail'); //
+        if (storedEmail) {
+            // Namen aus E-Mail extrahieren (z.B. "admin" aus "admin@valola.com")
+            const userName = storedEmail.split('@')[0];
+            const formattedName = userName.charAt(0).toUpperCase() + userName.slice(1);
 
-            if (!token) {
-                window.location.href = 'login.html';
-                return;
+            // Text im Header anpassen (statt "Profil laden...")
+            if (userProfileLink) {
+                userProfileLink.textContent = `👤 ${formattedName}`;
+                userProfileLink.href = 'profile.html'; // Link zur Bearbeitungsseite
             }
 
-            const storedEmail = localStorage.getItem('userEmail');
-            userEmail.textContent = storedEmail || 'Benutzerdaten nicht verfügbar';
+            // E-Mail in der Dashboard-Karte anzeigen
+            if (userEmailDisplay) {
+                userEmailDisplay.textContent = storedEmail;
+            }
+        }
 
-            logoutBtn.addEventListener('click', redirectToLogin);
+        // 3. Logout-Funktionalität
+        if (logoutLink) {
             logoutLink.addEventListener('click', (event) => {
                 event.preventDefault();
                 redirectToLogin();
             });
+        }
 
-            // Sidebar-Menü Funktionalität
-            const submenuToggles = document.querySelectorAll('.has-submenu > a');
-            submenuToggles.forEach(toggle => {
-                toggle.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const submenu = toggle.nextElementSibling;
-                    const parentLi = toggle.parentElement;
-                    const isOpen = submenu.classList.contains('open');
+        // 4. Sidebar-Menü Funktionalität
+        const submenuToggles = document.querySelectorAll('.has-submenu > a');
+        
+        submenuToggles.forEach(toggle => {
+            toggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                const submenu = toggle.nextElementSibling;
+                const isOpen = submenu.classList.contains('open');
 
-                    // Schließe alle anderen Submenüs
-                    document.querySelectorAll('.submenu.open').forEach(openSubmenu => {
-                        if (openSubmenu !== submenu) {
-                            openSubmenu.classList.remove('open');
-                            openSubmenu.parentElement.querySelector('a').classList.remove('active');
-                        }
-                    });
-
-                    // Toggle aktuelles Submenü
-                    submenu.classList.toggle('open');
-                    if (submenu.classList.contains('open')) {
-                        toggle.classList.add('active');
-                    } else {
-                        toggle.classList.remove('active');
+                // Alle anderen offenen Submenüs schließen
+                document.querySelectorAll('.submenu.open').forEach(openSubmenu => {
+                    if (openSubmenu !== submenu) {
+                        openSubmenu.classList.remove('open');
+                        openSubmenu.parentElement.querySelector('a').classList.remove('active');
                     }
                 });
+
+                // Aktuelles Submenü umschalten
+                if (isOpen) {
+                    submenu.classList.remove('open');
+                    toggle.classList.remove('active');
+                } else {
+                    submenu.classList.add('open');
+                    toggle.classList.add('active');
+                }
             });
         });
-    </script>
+    });
+</script>
 </body>
 </html>

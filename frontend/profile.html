@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valola - Profil bearbeiten</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: bold; color: #2c3e50; }
+        .form-control { 
+            width: 100%; padding: 0.8rem; border-radius: 8px; 
+            border: 1px solid #dfe4ea; font-size: 1rem;
+        }
+        .form-control:disabled { background-color: #f1f2f6; cursor: not-allowed; }
+        .btn-save { 
+            background-color: #3498db; color: white; border: none; 
+            padding: 1rem 2rem; border-radius: 8px; cursor: pointer; font-size: 1rem;
+        }
+        .btn-save:hover { background-color: #2980b9; }
+    </style>
+</head>
+<body data-page="profile">
+    <header>
+        <nav>
+            <div class="logo">Valola</div>
+            <ul>
+                <li><a href="profile.html" id="userProfileLink" class="active">Profil</a></li>
+                <li><a href="#" id="logoutLink">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="dashboard.html">📊 Dashboard</a></li>
+                    <li><a href="#produkte">📦 Produkte</a></li>
+                    <li><a href="#kunden">👥 Kunden</a></li>
+                    <li><a href="#zeiterfassung">⏱️ Zeiterfassung</a></li>
+                    <li><a href="#kundendienst">📧 Kundendienst</a></li>
+                    <li><a href="profile.html" class="active">⚙️ Einstellungen</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="dashboard-container">
+                <h1>Persönliches Profil</h1>
+                <p>Verwalte hier deine Kontaktdaten und persönlichen Informationen.</p>
+
+                <div class="dashboard-card" style="max-width: 800px;">
+                    <form id="profileForm">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <label for="firstName">Vorname</label>
+                                <input type="text" id="firstName" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Nachname</label>
+                                <input type="text" id="lastName" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">E-Mail Adresse</label>
+                            <input type="email" id="email" class="form-control" required>
+                            <small>Hinweis: Wenn du die E-Mail änderst, musst du dich beim nächsten Mal mit der neuen Adresse einloggen.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="address">Adresse</label>
+                            <input type="text" id="address" class="form-control">
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <label for="phone">Telefon (Festnetz)</label>
+                                <input type="tel" id="phone" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="mobile">Handy (Mobil)</label>
+                                <input type="tel" id="mobile" class="form-control">
+                            </div>
+                        </div>
+
+                        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+
+                        <h3>Passwort ändern</h3>
+                        <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">Lasse diese Felder leer, wenn du dein Passwort behalten möchtest.</p>
+                        
+                        <div class="form-group">
+                            <label for="currentPassword">Aktuelles Passwort (zur Bestätigung)</label>
+                            <input type="password" id="currentPassword" class="form-control" placeholder="********">
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <label for="newPassword">Neues Passwort</label>
+                                <input type="password" id="newPassword" class="form-control" placeholder="Mind. 8 Zeichen">
+                            </div>
+                            <div class="form-group">
+                                <label for="confirmPassword">Neues Passwort bestätigen</label>
+                                <input type="password" id="confirmPassword" class="form-control" placeholder="********">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-save">Alle Änderungen speichern</button>
+                    </form>
+                    <div id="statusMessage" style="margin-top: 1rem;"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+   <script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem('authToken');
+    const status = document.getElementById('statusMessage');
+    const profileForm = document.getElementById('profileForm');
+
+    // 1. Authentifizierungs-Check
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    // Hilfsfunktion zum Setzen der ID
+    const setUserId = (id) => {
+        if (id) {
+            profileForm.dataset.userId = id;
+            console.log("Benutzer-ID gesetzt:", id);
+        }
+    };
+
+    // 2. Aktuelle Daten vom Backend laden
+    try {
+    const response = await fetch('/api/users/me', {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (response.ok) {
+        const user = await response.json();
+        document.getElementById('email').value = user.email || '';
+        document.getElementById('firstName').value = user.first_name || '';
+        document.getElementById('lastName').value = user.last_name || '';
+        profileForm.dataset.userId = user.id;
+    } else {
+        // BACKUP: Falls 404, nimm die Daten aus dem LocalStorage
+        console.warn("API /me nicht gefunden, nutze LocalStorage Backup");
+        const savedEmail = localStorage.getItem('userEmail');
+        if (savedEmail) {
+            document.getElementById('email').value = savedEmail;
+            // Wenn wir keine ID haben, müssen wir sie für den PUT-Request 
+            // evtl. aus einem anderen Feld beziehen oder den Fehler abfangen
+        }
+    }
+} catch (err) {
+    console.error("Netzwerkfehler:", err);
+        status.innerHTML = "<span style='color:orange;'>⚠️ Hinweis: Daten konnten nicht geladen werden.</span>";
+    }
+
+    // 3. Daten an das Backend übertragen
+    profileForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // ID abrufen
+        const userId = profileForm.dataset.userId;
+
+        // FEHLERBEHEBUNG: Falls ID fehlt, versuche sie aus dem Token/LocalStorage zu raten oder Fehlermeldung
+        if (!userId || userId === "undefined") {
+            status.innerHTML = "<span style='color:red;'>❌ Fehler: ID nicht gefunden. Bitte logge dich neu ein.</span>";
+            return;
+        }
+
+        const newPassword = document.getElementById('newPassword')?.value;
+        const confirmPassword = document.getElementById('confirmPassword')?.value;
+
+        // Validierung Passwort
+        if (newPassword && newPassword !== confirmPassword) {
+            status.innerHTML = "<span style='color:red;'>❌ Passwörter stimmen nicht überein.</span>";
+            return;
+        }
+
+        status.innerHTML = "⏳ Speichere Änderungen...";
+
+        // Datenobjekt zusammenstellen gemäß Schema 
+        const updateData = {
+            email: document.getElementById('email').value,
+            first_name: document.getElementById('firstName').value,
+            last_name: document.getElementById('lastName').value,
+            address: document.getElementById('address').value,
+            phone: document.getElementById('phone').value,
+            mobile: document.getElementById('mobile').value
+        };
+
+        if (newPassword) {
+            updateData.password = newPassword;
+        }
+
+        try {
+            // URL dynamisch mit der ID 
+            const response = await fetch(`/api/users/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(updateData)
+            });
+
+            if (response.ok) {
+                status.innerHTML = "<span style='color:green;'>✅ Profil erfolgreich aktualisiert!</span>";
+                localStorage.setItem('userEmail', updateData.email); // Update für Header
+                
+                // Passwortfelder leeren
+                if(document.getElementById('newPassword')) document.getElementById('newPassword').value = '';
+                if(document.getElementById('confirmPassword')) document.getElementById('confirmPassword').value = '';
+                if(document.getElementById('currentPassword')) document.getElementById('currentPassword').value = '';
+            } else {
+                const errData = await response.json();
+                status.innerHTML = `<span style='color:red;'>❌ Fehler: ${errData.message || 'Serverfehler'}</span>`;
+            }
+        } catch (err) {
+            status.innerHTML = "<span style='color:red;'>❌ Netzwerkfehler beim Speichern.</span>";
+        }
+    });
+});
+
+function redirectToLogin() {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userEmail');
+    window.location.href = 'login.html';
+}
+</script>
+</body>
+</html>

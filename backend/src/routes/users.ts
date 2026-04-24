@@ -77,7 +77,9 @@ router.get('/me', authenticateToken, async (req: AuthenticatedRequest, res: Resp
     }
 
     const { password_hash, ...userResponse } = user;
-    res.json({ user: userResponse });
+    
+    // ÄNDERUNG HIER: Sende userResponse direkt, nicht in einem Unterobjekt
+    res.json(userResponse); 
   } catch (error) {
     console.error('Fehler beim Abrufen des Benutzers:', error);
     res.status(500).json({ error: 'Fehler beim Abrufen des Benutzers' });
