@@ -12,12 +12,12 @@ app.use('/api', createProxyMiddleware({
   logLevel: 'debug' // Debug-Ausgabe
 }));
 
-// Serviere statische Dateien aus dem Root-Verzeichnis
-app.use(express.static(path.join(__dirname)));
+// Serviere statische Dateien aus dem Frontend-Verzeichnis
+app.use(express.static(path.join(__dirname, 'frontend')));
 
 // Fallback: sende index.html für alle nicht-API Routen
-app.get(['/', '/index.html', '/login.html', '/login-test.html'], (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+app.get(['/', '/index.html', '/login.html', '/dashboard.html', '/login-test.html', '/test-api.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
 
 app.listen(PORT, 'localhost', () => {

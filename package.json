@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
-    "serve": "http-server . -p 8000",
+    "serve": "http-server frontend -p 8000",
     "serve:proxy": "node proxy-server.js",
     "backend:install": "cd backend && npm install",
     "backend:build": "cd backend && npm run build",

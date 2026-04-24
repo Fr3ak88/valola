@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valola Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="dashboard">
+    <header>
+        <nav>
+            <div class="logo">Valola</div>
+            <ul>
+                <li><a href="index.html">Start</a></li>
+                <li><a href="dashboard.html" class="active">Dashboard</a></li>
+                <li><a href="login.html" id="logoutLink">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#dashboard" class="active">📊 Dashboard</a></li>
+                    <li><a href="#produkte">📦 Produkte</a></li>
+                    <li><a href="#kunden">👥 Kunden</a></li>
+                    <li class="has-submenu">
+                        <a href="#verkauf">💰 Verkauf</a>
+                        <ul class="submenu">
+                            <li><a href="#angebote">📄 Angebote</a></li>
+                            <li><a href="#auftraege">📋 Aufträge</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#buchhaltung">💼 Buchhaltung</a>
+                        <ul class="submenu">
+                            <li><a href="#rechnungen">📄 Rechnungen</a></li>
+                            <li><a href="#lieferantenrechnungen">📋 Lieferantenrechnungen</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#lager">📦 Lager</a>
+                        <ul class="submenu">
+                            <li><a href="#bestand">📊 Bestand</a></li>
+                            <li><a href="#bewegungen">🔄 Bewegungen</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#dms">📁 DMS</a></li>
+                    <li class="has-submenu">
+                        <a href="#einstellungen">⚙️ Einstellungen</a>
+                        <ul class="submenu">
+                            <li><a href="#stammdaten">📋 Stammdaten</a></li>
+                            <li><a href="#benutzer">👤 Benutzer</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="dashboard-container">
+                <h1>Willkommen im Valola Dashboard</h1>
+                <p>Hier findest du einen schnellen Überblick über dein Konto und die wichtigsten Funktionen.</p>
+
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <h2>Benutzer</h2>
+                        <p>Du bist eingeloggt als:</p>
+                        <p id="userEmail">Lade Benutzerinfo...</p>
+                    </div>
+                    <div class="dashboard-card">
+                        <h2>Status</h2>
+                        <p id="loginStatus">Login erfolgreich</p>
+                    </div>
+                    <div class="dashboard-card">
+                        <h2>Zugriff</h2>
+                        <p>Du hast vollen Zugriff auf dein Dashboard.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Valola. Alle Rechte vorbehalten.</p>
+    </footer>
+
+    <script>
+        function redirectToLogin() {
+            localStorage.removeItem('authToken');
+            window.location.href = 'login.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('authToken');
+            const userEmail = document.getElementById('userEmail');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const logoutLink = document.getElementById('logoutLink');
+
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const storedEmail = localStorage.getItem('userEmail');
+            userEmail.textContent = storedEmail || 'Benutzerdaten nicht verfügbar';
+
+            logoutBtn.addEventListener('click', redirectToLogin);
+            logoutLink.addEventListener('click', (event) => {
+                event.preventDefault();
+                redirectToLogin();
+            });
+
+            // Sidebar-Menü Funktionalität
+            const submenuToggles = document.querySelectorAll('.has-submenu > a');
+            submenuToggles.forEach(toggle => {
+                toggle.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const submenu = toggle.nextElementSibling;
+                    const parentLi = toggle.parentElement;
+                    const isOpen = submenu.classList.contains('open');
+
+                    // Schließe alle anderen Submenüs
+                    document.querySelectorAll('.submenu.open').forEach(openSubmenu => {
+                        if (openSubmenu !== submenu) {
+                            openSubmenu.classList.remove('open');
+                            openSubmenu.parentElement.querySelector('a').classList.remove('active');
+                        }
+                    });
+
+                    // Toggle aktuelles Submenü
+                    submenu.classList.toggle('open');
+                    if (submenu.classList.contains('open')) {
+                        toggle.classList.add('active');
+                    } else {
+                        toggle.classList.remove('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
