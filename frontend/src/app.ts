@@ -6,6 +6,15 @@ type ElementOptions = {
     attrs?: Record<string, string>;
 };
 
+export interface User {
+    id: number;
+    email: string;
+    first_name?: string;
+    last_name?: string;
+    role?: 'user' | 'admin' | 'moderator';
+    is_active?: boolean;
+}
+
 // API Service für Backend-Kommunikation
 class ApiService {
     private static baseUrl = 'http://localhost:3001/api';
@@ -42,7 +51,12 @@ class ApiService {
         });
 
         if (!response.ok) {
-            const error = await response.json().catch(() => ({ error: 'Netzwerkfehler' }));
+            let error;
+            try {
+                error = await response.json();
+            } catch (e) {
+                error = { error: `Serverfehler oder Netzwerkproblem (Status: ${response.status})` };
+            }
             throw new Error(error.error || `HTTP ${response.status}`);
         }
 
@@ -50,7 +64,7 @@ class ApiService {
     }
 
     static async login(email: string, password: string) {
-        const response = await this.request<{ user: any; token: string }>('/users/login', {
+        const response = await this.request<{ user: User; token: string }>('/users/login', {
             method: 'POST',
             body: JSON.stringify({ email, password })
         });
@@ -66,8 +80,8 @@ class ApiService {
         });
     }
 
-    static async getCurrentUser() {
-        return this.request<{ user: any }>('/users/me');
+    static async getCurrentUser(): Promise<{ user: User }> {
+        return this.request<{ user: User }>('/users/me');
     }
 
     static logout() {
