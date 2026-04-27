@@ -101,6 +101,9 @@ router.get('/', authenticateToken, requireRole('admin'), async (req: Request, re
 router.put('/:id', authenticateToken, [
   body('first_name').optional().isLength({ min: 1 }),
   body('last_name').optional().isLength({ min: 1 }),
+  body('address').optional().isString(),
+  body('phone').optional().isString(),
+  body('mobile').optional().isString(),
   body('role').optional().isIn(['user', 'admin', 'moderator']),
   body('is_active').optional().isBoolean()
 ], async (req: AuthenticatedRequest, res: Response) => {

@@ -69,7 +69,8 @@ router.get('/me', auth_1.authenticateToken, async (req, res) => {
             return res.status(404).json({ error: 'Benutzer nicht gefunden' });
         }
         const { password_hash, ...userResponse } = user;
-        res.json({ user: userResponse });
+        // ÄNDERUNG HIER: Sende userResponse direkt, nicht in einem Unterobjekt
+        res.json(userResponse);
     }
     catch (error) {
         console.error('Fehler beim Abrufen des Benutzers:', error);
@@ -91,6 +92,9 @@ router.get('/', auth_1.authenticateToken, (0, auth_1.requireRole)('admin'), asyn
 router.put('/:id', auth_1.authenticateToken, [
     (0, express_validator_1.body)('first_name').optional().isLength({ min: 1 }),
     (0, express_validator_1.body)('last_name').optional().isLength({ min: 1 }),
+    (0, express_validator_1.body)('address').optional().isString(),
+    (0, express_validator_1.body)('phone').optional().isString(),
+    (0, express_validator_1.body)('mobile').optional().isString(),
     (0, express_validator_1.body)('role').optional().isIn(['user', 'admin', 'moderator']),
     (0, express_validator_1.body)('is_active').optional().isBoolean()
 ], async (req, res) => {

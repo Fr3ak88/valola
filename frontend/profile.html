@@ -26,7 +26,7 @@
             <div class="logo">Valola</div>
             <ul>
                 <li><a href="profile.html" id="userProfileLink" class="active">Profil</a></li>
-                <li><a href="#" id="logoutLink">Logout</a></li>
+                <li><a href="index.html" id="logoutLink">Logout</a></li>
             </ul>
         </nav>
     </header>
@@ -134,17 +134,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    const API_BASE = 'http://localhost:3001/api';
+
     // 2. Aktuelle Daten vom Backend laden
     try {
-    const response = await fetch('/api/users/me', {
+    const response = await fetch(`${API_BASE}/users/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
     });
     
     if (response.ok) {
-        const user = await response.json();
+        const data = await response.json();
+            // Sicherer Fallback: Prüfen, ob die Daten im 'user'-Unterobjekt stecken
+            const user = data.user ? data.user : data;
         document.getElementById('email').value = user.email || '';
         document.getElementById('firstName').value = user.first_name || '';
         document.getElementById('lastName').value = user.last_name || '';
+        document.getElementById('address').value = user.address || '';
+        document.getElementById('phone').value = user.phone || '';
+        document.getElementById('mobile').value = user.mobile || '';
         profileForm.dataset.userId = user.id;
     } else {
         // BACKUP: Falls 404, nimm die Daten aus dem LocalStorage
@@ -201,7 +208,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         try {
             // URL dynamisch mit der ID 
-            const response = await fetch(`/api/users/${userId}`, {
+            const response = await fetch(`${API_BASE}/users/${userId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

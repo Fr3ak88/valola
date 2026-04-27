@@ -1,4 +1,3 @@
-"use strict";
 // API Service für Backend-Kommunikation
 class ApiService {
     static setToken(token) {
@@ -26,7 +25,13 @@ class ApiService {
             headers
         });
         if (!response.ok) {
-            const error = await response.json().catch(() => ({ error: 'Netzwerkfehler' }));
+            let error;
+            try {
+                error = await response.json();
+            }
+            catch (e) {
+                error = { error: `Serverfehler oder Netzwerkproblem (Status: ${response.status})` };
+            }
             throw new Error(error.error || `HTTP ${response.status}`);
         }
         return response.json();
@@ -46,11 +51,20 @@ class ApiService {
         });
     }
     static async getCurrentUser() {
-        return this.request('/users/me');
+        const response = await this.request('/users/me');
+        // Sicherer Fallback: Prüfen, ob die Daten im 'user'-Unterobjekt stecken
+        // (falls das Backend noch die alte Struktur sendet) oder direkt kommen
+        return response.user ? response.user : response;
+    }
+    static async updateUser(id, data) {
+        return this.request(`/users/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(data)
+        });
     }
     static logout() {
         this.clearToken();
-        window.location.reload();
+        window.location.href = 'dashboard.html';
     }
 }
 ApiService.baseUrl = 'http://localhost:3001/api';
@@ -246,4 +260,13 @@ function detectPage() {
 }
 document.addEventListener('DOMContentLoaded', () => {
     renderApp(detectPage());
+    // Logout-Button Logik binden (für Profilübersicht / Dashboard)
+    const logoutBtn = document.getElementById('logout-btn') || document.querySelector('.logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            ApiService.logout();
+        });
+    }
 });
+export {};

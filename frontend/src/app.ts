@@ -11,6 +11,9 @@ export interface User {
     email: string;
     first_name?: string;
     last_name?: string;
+    address?: string;
+    phone?: string;
+    mobile?: string;
     role?: 'user' | 'admin' | 'moderator';
     is_active?: boolean;
 }
@@ -80,13 +83,23 @@ class ApiService {
         });
     }
 
-    static async getCurrentUser(): Promise<{ user: User }> {
-        return this.request<{ user: User }>('/users/me');
+    static async getCurrentUser(): Promise<User> {
+        const response = await this.request<any>('/users/me');
+        // Sicherer Fallback: Prüfen, ob die Daten im 'user'-Unterobjekt stecken
+        // (falls das Backend noch die alte Struktur sendet) oder direkt kommen
+        return response.user ? response.user : response;
+    }
+
+    static async updateUser(id: number, data: Partial<User>): Promise<{ message: string; user: User }> {
+        return this.request<{ message: string; user: User }>(`/users/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(data)
+        });
     }
 
     static logout() {
         this.clearToken();
-        window.location.reload();
+        window.location.href = 'dashboard.html';
     }
 }
 
@@ -319,4 +332,13 @@ function detectPage(): PageType {
 
 document.addEventListener('DOMContentLoaded', () => {
     renderApp(detectPage());
+
+    // Logout-Button Logik binden (für Profilübersicht / Dashboard)
+    const logoutBtn = document.getElementById('logout-btn') || document.querySelector('.logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            ApiService.logout();
+        });
+    }
 });
